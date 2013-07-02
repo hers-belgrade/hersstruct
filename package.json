@@ -1,0 +1,20 @@
+{
+  "name": "hersstruct",
+  "version": "0.1.0",
+  "description": "Structured approach to Buffer class",
+  "main": "struct.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hers-belgrade/hersstruct.git"
+  },
+  "keywords": [
+    "nodejs"
+  ],
+  "author": "Andrija Petrovic",
+  "license": "BSD",
+  "readmeFilename": "README.md",
+  "gitHead": "5a916ceef847299e90fa6dc405cbf785abe009dc"
+}
