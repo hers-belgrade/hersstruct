@@ -282,7 +282,7 @@ Struct.prototype.write = function(data,buffer,offset){
   for(var i=0; i<dnsl; i++){
     var dn = dns[i];
     var e = this.elems[dn];
-    if(!data[dn]){
+    if(typeof data[dn] === 'undefined'){
       console.log(dn,'missing from',data);
     }
     e.write(data[dn],buffer,offset+e.offset);
