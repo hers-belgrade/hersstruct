@@ -55,10 +55,20 @@ function StructElement(){ }
 StructElement.prototype.bufferName = function(){return '';}
 StructElement.prototype.sizeInBytes = function(){return 0;}
 StructElement.prototype.read = function(buffer,offset){
+  try{
   return buffer['read'+this.bufferName()](offset);
+  }
+  catch(e){
+    console.log('error reading',e);
+  }
 };
 StructElement.prototype.write = function(value,buffer,offset){
+  try{
   buffer['write'+this.bufferName()](value,offset);
+  }
+  catch(e){
+    console.log('error',e);
+  }
 };
 function UInt8(){ }
 UInt8.prototype = new StructElement();
@@ -110,6 +120,16 @@ Int32BE.prototype = new StructElement();
 Int32BE.prototype.constructor = Int32BE;
 Int32BE.prototype.bufferName = function(){return 'Int32BE';}
 Int32BE.prototype.sizeInBytes = function(){return 4;}
+function FloatLE(){ }
+FloatLE.prototype = new StructElement();
+FloatLE.prototype.constructor = FloatLE;
+FloatLE.prototype.bufferName = function(){return 'FloatLE';}
+FloatLE.prototype.sizeInBytes = function(){return 4;}
+function FloatBE(){ }
+FloatBE.prototype = new StructElement();
+FloatBE.prototype.constructor = FloatBE;
+FloatBE.prototype.bufferName = function(){return 'FloatBE';}
+FloatBE.prototype.sizeInBytes = function(){return 4;}
 function UInt64LE(){ }
 UInt64LE.prototype = new StructElement();
 UInt64LE.prototype.constructor = UInt64LE;
@@ -117,6 +137,11 @@ UInt64LE.prototype.sizeInBytes = function(){return 8;}
 UInt64LE.prototype.write = function(value,buffer,offset){
   buffer.writeUInt32LE(value,offset);
   buffer.writeUInt32LE(Math.floor(value/0x100000000),offset+4);
+};
+UInt64LE.prototype.read = function(buffer,offset){
+  var ret = buffer.readUInt32LE(offset);
+  ret+=(buffer.readUInt32LE(offset+4)*0x100000000);
+  return ret;
 };
 
 function CRC(){ }
@@ -149,6 +174,10 @@ function createStructElement(typename){
       return new UInt32BE();
     case 'int32be':
       return new Int32BE();
+    case 'floatle':
+      return new FloatLE();
+    case 'floatbe':
+      return new FloatBE();
     case 'uint64le':
       return new UInt64LE();
     case 'crc':
