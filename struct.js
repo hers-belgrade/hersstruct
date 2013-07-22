@@ -258,6 +258,7 @@ function Struct(mapstring){ //'crc:crc,id:uint32le,type:uint16le,numbers:uint8[4
   re = new RegExp('^\\s*([^:\\s]+):([^:\\s]+)\\s*$');
   re1 = new RegExp('^([^\\[]+)\\[([^\\]]+)\\]$');
   re2 = new RegExp('^\\s*([0-9]+)(-([^\\s]+))?\\s*$');
+  re3 = new RegExp('^{([^}]*)$');
   for(var i in elems){
     var nva = re.exec(elems[i]);
     if(nva === null){continue;}
@@ -266,11 +267,18 @@ function Struct(mapstring){ //'crc:crc,id:uint32le,type:uint16le,numbers:uint8[4
     var strtypea = re2.exec(typestr);
     if(strtypea !== null){
       se = new StringStructElement(parseInt(strtypea[1]),strtypea[3]);
-    }
-    if(!se){
+    }else{
       var typea = re1.exec(typestr);
       if(typea===null){
-        se = createStructElement(typestr);
+        console.log(typestr);
+        var typestruct = re3.exec(typestr);
+        if(typestruct===null){
+          se = createStructElement(typestr);
+        }else{
+          if(typestr[0]==='{'){
+            console.log('GOT STRUCT',typestruct);
+          }
+        }
       }else{
         se = new ArrayStructElement(typea[1],parseInt(typea[2]));
       }
@@ -328,6 +336,13 @@ Struct.prototype.bufferFrom = function(data){
   var b = new Buffer(this.sizeInBytes);
   this.write(data,b,0);
   return b;
+};
+Struct.prototype.sizeInBytes = function(){
+  var ret = 0;
+  for(var i in this.elems){
+    ret += this.elems[i].sizeInBytes();
+  }
+  return ret;
 };
 
 var fs = require('fs');
