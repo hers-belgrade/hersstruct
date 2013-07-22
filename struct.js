@@ -365,7 +365,7 @@ File.prototype.traverse = function(initcb,cb,fieldnames){
     return;
   }
   if(!fs.existsSync(this.path)){
-    throw (path+' does not exist');
+    throw (this.path+' does not exist');
   }
   var struct = this.struct;
   var filestat = fs.statSync(this.path);
