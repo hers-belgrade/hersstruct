@@ -350,16 +350,29 @@ function File(mapstring,path){
   var struct = new Struct(mapstring);
   this.struct = struct;
   this.path = path;
-}
+};
+File.prototype.recordCount = function(){
+  if(!fs.existsSync(this.path)){
+    throw (this.path+' does not exist');
+  }
+  var struct = this.struct;
+  var filestat = fs.statSync(this.path);
+  var fsz = filestat.size;
+  var sz = struct.sizeInBytes;
+  if(fsz%sz){
+    throw (this.path+' has filesize '+fsz+' that is not a multiple of '+sz+' bytes');
+  }
+  return fsz/sz;
+};
 File.prototype.erase = function(){
   fs.writeFileSync(this.path,new Buffer(0));
-}
+};
 File.prototype.write = function(data){
   fs.writeFileSync(this.path,this.struct.bufferFrom(data));
-}
+};
 File.prototype.append = function(data){
   fs.appendFileSync(this.path,this.struct.bufferFrom(data));
-}
+};
 File.prototype.traverse = function(initcb,cb,fieldnames){
   if(typeof cb !== 'function'){
     return;
