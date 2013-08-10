@@ -270,7 +270,6 @@ function Struct(mapstring){ //'crc:crc,id:uint32le,type:uint16le,numbers:uint8[4
     }else{
       var typea = re1.exec(typestr);
       if(typea===null){
-        console.log(typestr);
         var typestruct = re3.exec(typestr);
         if(typestruct===null){
           se = createStructElement(typestr);
