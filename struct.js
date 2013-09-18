@@ -63,12 +63,7 @@ StructElement.prototype.read = function(buffer,offset){
   }
 };
 StructElement.prototype.write = function(value,buffer,offset){
-  try{
   buffer['write'+this.bufferName()](value,offset);
-  }
-  catch(e){
-    console.log('error',e);
-  }
 };
 function UInt8(){ }
 UInt8.prototype = new StructElement();
@@ -313,23 +308,33 @@ Struct.prototype.read = function(buffer,offset,fieldnames){
   return data;
 };
 Struct.prototype.write = function(data,buffer,offset){
-  var dns = this.datanamesforwrite1;
-  var dnsl = dns.length;
-  for(var i=0; i<dnsl; i++){
-    var dn = dns[i];
-    var e = this.elems[dn];
-    if(typeof data[dn] === 'undefined'){
-      console.log(dn,'missing from',data);
-    }
-    e.write(data[dn],buffer,offset+e.offset);
-  }
-  dns = this.datanamesforwrite2;
-  dnsl = dns.length;
-  for(var i=0; i<dnsl; i++){
-    var dn = dns[i];
-    var e = this.elems[dn];
-    e.write(data[dn],buffer,offset+e.offset,this.sizeInBytes); //sizeInBytes is an extra param, just for the crc
-  }
+	var dns = this.datanamesforwrite1;
+	var dnsl = dns.length;
+	for(var i=0; i<dnsl; i++){
+		var dn = dns[i];
+		var e = this.elems[dn];
+		if(typeof data[dn] === 'undefined'){
+			console.log(dn,'missing from',data);
+		}
+		try{
+			e.write(data[dn],buffer,offset+e.offset);
+		}
+		catch(e){
+			console.log('Writing',dn,'value',data[dn],'caused error',e);
+		}
+	}
+	dns = this.datanamesforwrite2;
+	dnsl = dns.length;
+	for(var i=0; i<dnsl; i++){
+		var dn = dns[i];
+		var e = this.elems[dn];
+		try{
+			e.write(data[dn],buffer,offset+e.offset,this.sizeInBytes); //sizeInBytes is an extra param, just for the crc
+		}
+		catch(err){
+			console.log('Writing',dn,'value',data[dn],'caused error2',err);
+		}
+	}
 };
 Struct.prototype.bufferFrom = function(data){
   var b = new Buffer(this.sizeInBytes);
