@@ -350,6 +350,7 @@ Struct.prototype.sizeInBytes = function(){
 };
 
 var fs = require('fs');
+
 function File(mapstring,path){
   var struct = new Struct(mapstring);
   this.struct = struct;
@@ -377,7 +378,7 @@ File.prototype.write = function(data){
 File.prototype.append = function(data){
   fs.appendFileSync(this.path,this.struct.bufferFrom(data));
 };
-File.prototype.traverse = function(initcb,cb,fieldnames){
+File.prototype.traverse = function(initcb,cb,fieldnames, chunks){
   if(typeof cb !== 'function'){
     return;
   }
@@ -394,16 +395,29 @@ File.prototype.traverse = function(initcb,cb,fieldnames){
   if(typeof initcb === 'function'){
     initcb.apply(this,[fsz,sz,Math.floor(fsz/sz)]);
   }
-  var f = fs.openSync(this.path,'r');
-  var buff = new Buffer(sz);
-  var count=0;
-  while(fs.readSync(f,buff,0,sz)===sz){
-    var cbres = cb.apply(this,[struct.read(buff,0,fieldnames),count]);
-    if(cbres===true){
-      break;
-    }
-    count++;
-  }
+
+	//Open file for reading in synchronous mode. Instructs the operating system to bypass the local file system cache
+	//TODO: introduce more chunk checks on this: check overlapping, check range data and so on ....
+  var f = fs.openSync(this.path,'rs');
+	if (!chunks) {
+		var len = Math.floor(fsz/sz);
+		chunks = [{start: 0, len:len}];
+	}
+	var bufferSize = 0;
+	for (var i in chunks) { bufferSize += (chunks[i].len*sz); }
+	var buff = new Buffer(bufferSize);
+	var count = 0;
+
+	for (var i in chunks) {
+		for (var l=0; l<chunks[i].len; l++) {
+			if (fs.readSync(f, buff,0 , sz, (chunks[i].start+l)*sz) != sz) throw "Invalid file position";
+			var cbres = cb.apply(this,[struct.read(buff,0,fieldnames),count]);
+			if(cbres===true){
+				break;
+			}
+			count++;
+		}
+	}
 };
 
 function Storage(mapstring,count){
@@ -488,7 +502,7 @@ function StorageWFile(mapstring,filemapstring,path,pkname){
   this.pkname = pkname;
   this.mapstring = mapstring;
 }
-StorageWFile.prototype.load = function(initcb,cb){
+StorageWFile.prototype.load = function(initcb,cb, chunks){
   var t = this;
   this.file.traverse(function(fsz,sz,reccnt){
     t.storage = t.pkname ? new PKStorage(t.mapstring,reccnt,t.pkname) : new Storage(t.mapstring,reccnt);
@@ -500,7 +514,7 @@ StorageWFile.prototype.load = function(initcb,cb){
     if(typeof cb === 'function'){
       cb.apply(this,[data,recordinal]);
     }
-  });
+  }, undefined, chunks);
 };
 StorageWFile.prototype.put = function(data,recordinal){
   this.file.put(data,recordinal);
