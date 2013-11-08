@@ -1,3 +1,5 @@
+var Crypto = require('crypto');
+var CM = require('chunkmanager');
 var CRC16_TAB = new Array(
     0x0000,0x1021,0x2042,0x3063,0x4084,0x50A5,0x60C6,0x70E7,0x8108,0x9129,0xA14A,0xB16B,0xC18C,
     0xD1AD,0xE1CE,0xF1EF,0x1231,0x0210,0x3273,0x2252,0x52B5,0x4294,0x72F7,0x62D6,0x9339,0x8318,
@@ -400,16 +402,18 @@ File.prototype.traverse = function(initcb,cb,fieldnames, chunks){
 	//TODO: introduce more chunk checks on this: check overlapping, check range data and so on ....
   var f = fs.openSync(this.path,'rs');
 	if (!chunks) {
-		var len = Math.floor(fsz/sz);
-		chunks = [{start: 0, len:len}];
+		chunks = [{start: 0, end:Math.floor(fsz/sz)}];
+	}else{
+		chunks = CM.merge(chunks);
 	}
 	var bufferSize = 0;
-	for (var i in chunks) { bufferSize += (chunks[i].len*sz); }
+	for (var i in chunks) { bufferSize += (CM.chunk_length(chunks[i])*sz); }
 	var buff = new Buffer(bufferSize);
 	var count = 0;
 
 	for (var i in chunks) {
-		for (var l=0; l<chunks[i].len; l++) {
+		var len = CM.chunk_length(chunks[i]);
+		for (var l=0; l<len; l++) {
 			if (fs.readSync(f, buff,0 , sz, (chunks[i].start+l)*sz) != sz) throw "Invalid file position";
 			var cbres = cb.apply(this,[struct.read(buff,0,fieldnames),count]);
 			if(cbres===true){
@@ -419,6 +423,17 @@ File.prototype.traverse = function(initcb,cb,fieldnames, chunks){
 		}
 	}
 };
+
+File.prototype.getHash = function (cb) {
+	if ('function' != typeof(cb)) return undefined;
+	var stream = fs.ReadStream(this.path);
+	var digest = Crypto.createHash ('sha512');
+	stream.on ('data', function (d) {digest.update(d);});
+	stream.on ('end', function () {
+		cb(digest.digest('hex'));
+	});
+}
+
 
 function Storage(mapstring,count){
   if(mapstring){
