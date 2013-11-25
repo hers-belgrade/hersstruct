@@ -375,7 +375,7 @@ function File(mapstring,path){
 };
 File.prototype.recordCount = function(){
   if(!fs.existsSync(this.path)){
-    throw (this.path+' does not exist');
+    throw (this.path+' does not exist', process.cwd());
   }
   var struct = this.struct;
   var filestat = fs.statSync(this.path);
@@ -400,7 +400,8 @@ File.prototype.traverse = function(initcb,cb,fieldnames, chunks){
     return;
   }
   if(!fs.existsSync(this.path)){
-    throw (this.path+' does not exist');
+		console.trace();
+    throw (this.path+' does not exist within '+process.cwd());
   }
   var struct = this.struct;
   var filestat = fs.statSync(this.path);
@@ -462,7 +463,8 @@ Storage.prototype.put = function(data,recordinal){
 Storage.prototype.get = function(recordinal,fieldnames){
   return this.struct.read(this.storage,recordinal*this.struct.sizeInBytes,fieldnames);
 };
-Storage.prototype.traverse = function(cb,fieldnames){
+///pass a test_cb in order to filter out results ... in test_cb return undefined if you want test to fail ...
+Storage.prototype.traverse = function(cb,fieldnames, test_cb){
   if(typeof cb !== 'function'){
     return;
   }
@@ -470,8 +472,20 @@ Storage.prototype.traverse = function(cb,fieldnames){
   var dsz = this.storage.length;
   var pos = 0;
   var cnt = 0;
+
+	var do_test = ('function' === typeof(test_cb));
+
   while(pos<dsz){
-    var cbres = cb.apply(this,[this.struct.read(this.storage,pos,fieldnames),cnt]);
+		var cbres;
+
+		if (do_test) {
+			var test_result = test_cb.apply(this, [this.struct.read(this.storage, pos, fieldnames), cnt]);
+			if ('undefined' !== typeof(test_result))  {
+				cbres = cb.apply(this,[this.struct.read(this.storage,pos,undefined),cnt, test_result]);
+			}
+		}else{
+    	cbres = cb.apply(this,[this.struct.read(this.storage,pos,fieldnames),cnt]);
+		}
     if(cbres===true){
       break;
     }
@@ -532,6 +546,7 @@ function StorageWFile(mapstring,filemapstring,path,pkname){
   this.pkname = pkname;
   this.mapstring = mapstring;
 }
+
 StorageWFile.prototype.load = function(initcb,cb, chunks){
   var t = this;
   this.file.traverse(function(fsz,sz,reccnt){
