@@ -406,7 +406,6 @@ File.prototype.write = function(data){
 
 File.prototype.append = function(data){
   fs.appendFileSync(this.path,this.struct.bufferFrom(data));
-	return this.recordCount()-1;
 };
 
 File.prototype.traverse = function(initcb,cb,fieldnames, chunks){
