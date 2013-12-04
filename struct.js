@@ -1,4 +1,5 @@
 var Crypto = require('crypto');
+var constants = process.binding('constants');
 var CM = require('chunkmanager');
 var CRC16_TAB = new Array(
     0x0000,0x1021,0x2042,0x3063,0x4084,0x50A5,0x60C6,0x70E7,0x8108,0x9129,0xA14A,0xB16B,0xC18C,
@@ -389,12 +390,25 @@ File.prototype.recordCount = function(){
 File.prototype.erase = function(){
   fs.writeFileSync(this.path,new Buffer(0));
 };
+
+File.prototype.update = function (data, position) {
+	var p = position*this.struct.sizeInBytes;
+	var fd = fs.openSync(this.path,'r+');
+	if (!fd) throw "Unable to open file: "+this.path;
+	var b = this.struct.bufferFrom(data);
+	fs.writeSync(fd, b , 0, b.length, p);
+	setTimeout(function () {fs.closeSync(fd);}, 0);
+}
+
 File.prototype.write = function(data){
-  fs.writeFileSync(this.path,this.struct.bufferFrom(data));
+	fs.writeFileSync(this.path,this.struct.bufferFrom(data));
 };
+
 File.prototype.append = function(data){
   fs.appendFileSync(this.path,this.struct.bufferFrom(data));
+	return this.recordCount()-1;
 };
+
 File.prototype.traverse = function(initcb,cb,fieldnames, chunks){
   if(typeof cb !== 'function'){
     return;
@@ -561,8 +575,15 @@ StorageWFile.prototype.load = function(initcb,cb, chunks){
     }
   }, undefined, chunks);
 };
-StorageWFile.prototype.put = function(data,recordinal){
-  this.file.put(data,recordinal);
+StorageWFile.prototype.get = function (recordinal, fieldnames) {
+	return this.storage.get(recordinal, fieldnames);
+}
+
+StorageWFile.prototype.put = function(data,recordinal, permanent){
+	if (arguments.length == 2) permanent = true;
+	this.storage.put(data,recordinal);
+	if (permanent) this.file.update(data, recordinal);
+	return this.get(recordinal);
 };
 
 
