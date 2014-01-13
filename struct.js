@@ -278,7 +278,7 @@ function Struct(mapstring){ //'crc:crc,id:uint32le,type:uint16le,numbers:uint8[4
     var se=undefined;
     var strtypea = re2.exec(typestr);
     if(strtypea !== null){
-      se = new StringStructElement(parseInt(strtypea[1]),strtypea[3]);
+      se = new StringStructElement(parseInt(strtypea[1],10),strtypea[3]);
     }else{
       var typea = re1.exec(typestr);
       if(typea===null){
@@ -291,7 +291,7 @@ function Struct(mapstring){ //'crc:crc,id:uint32le,type:uint16le,numbers:uint8[4
           }
         }
       }else{
-        se = new ArrayStructElement(typea[1],parseInt(typea[2]));
+        se = new ArrayStructElement(typea[1],parseInt(typea[2],10));
       }
     }
     if(!se){continue;}
