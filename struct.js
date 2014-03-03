@@ -311,9 +311,19 @@ function Struct(mapstring){ //'crc:crc,id:uint32le,type:uint16le,numbers:uint8[4
   this.datanamesforwrite1 = datanamesforwrite1;
   this.datanamesforwrite2 = datanamesforwrite2;
   this.sizeInBytes = size;
+  this.global_struct = {};
+  this.dropGlobalStruct();
 }
+
+Struct.prototype.dropGlobalStruct = function () {
+  for (var i in this.datanames) {
+    this.global_struct[this.datanames[i]] = null;
+  }
+}
+
 Struct.prototype.read = function(buffer,offset,fieldnames){
-  var data = {};
+  var data = this.global_struct;
+
   var dns = fieldnames || this.datanames;
   var dnsl = dns.length;
   offset = offset||0;
@@ -323,7 +333,6 @@ Struct.prototype.read = function(buffer,offset,fieldnames){
     var e = this.elems[dn];
     data[dn] = e.read(buffer,offset+e.offset);
   }
-  return data;
 };
 Struct.prototype.write = function(data,buffer,offset){
 	var dns = this.datanamesforwrite1;
@@ -444,7 +453,8 @@ File.prototype.traverse = function(initcb,cb,fieldnames, chunks){
 		var len = CM.chunk_length(chunks[i]);
 		for (var l=0; l<len; l++) {
 			if (fs.readSync(f, buff,0 , sz, (chunks[i].start+l)*sz) != sz) throw "Invalid file position";
-			var cbres = cb.apply(this,[struct.read(buff,0,fieldnames),count]);
+      struct.read(buff,0,fieldnames);
+			var cbres = cb.apply(this,[struct.global_struct,count]);
 			if(cbres===true){
 				break;
 			}
@@ -474,13 +484,16 @@ Storage.prototype.put = function(data,recordinal){
   this.struct.write(data,this.storage,recordinal*this.struct.sizeInBytes);
 };
 Storage.prototype.get = function(recordinal,fieldnames){
-  return this.struct.read(this.storage,recordinal*this.struct.sizeInBytes,fieldnames);
+  this.struct.dropGlobalStruct();
+  this.struct.read(this.storage,recordinal*this.struct.sizeInBytes,fieldnames);
+  return this.struct.global_struct;
 };
 ///pass a test_cb in order to filter out results ... in test_cb return undefined if you want test to fail ...
 Storage.prototype.traverse = function(cb,fieldnames, test_cb){
   if(typeof cb !== 'function'){
     return;
   }
+
   var sz = this.struct.sizeInBytes;
   var dsz = this.storage.length;
   var pos = 0;
@@ -488,16 +501,20 @@ Storage.prototype.traverse = function(cb,fieldnames, test_cb){
 
 	var do_test = ('function' === typeof(test_cb));
 
+  this.struct.dropGlobalStruct();
   while(pos<dsz){
 		var cbres;
-
 		if (do_test) {
-			var test_result = test_cb.apply(this, [this.struct.read(this.storage, pos, fieldnames), cnt]);
+      this.struct.read(this.storage, pos, fieldnames);
+			var test_result = test_cb.apply(this, [this.struct.global_struct,cnt]);
+
 			if ('undefined' !== typeof(test_result))  {
-				cbres = cb.apply(this,[this.struct.read(this.storage,pos,undefined),cnt, test_result]);
+        this.struct.read(this.storage,pos,undefined);
+				cbres = cb.apply(this,[this.struct.global_struct, cnt, test_result]);
 			}
 		}else{
-    	cbres = cb.apply(this,[this.struct.read(this.storage,pos,fieldnames),cnt]);
+      this.struct.read(this.storage,pos,fieldnames);
+    	cbres = cb.apply(this,[this.struct.global_struct,cnt]);
 		}
     if(cbres===true){
       break;
@@ -512,9 +529,11 @@ Storage.prototype.dataFor = function(name,value,cb,fieldnames){
   }
   var struct = this.struct;
   var storage = this.storage;
+  struct.dropGlobalStruct();
   this.traverse(function(data,recordinal){
     if(data[name]===value){
-      cb.apply(this,[struct.read(storage,recordinal*struct.sizeInBytes,fieldnames),recordinal]);
+      struct.read(storage,recordinal*struct.sizeInBytes,fieldnames)
+      cb.apply(this,[struct.global_struct,recordinal]);
       return true;
     }
   },[name]);
@@ -548,7 +567,9 @@ PKStorage.prototype.dataFor = function(name,value,cb,fieldnames){
       cb.apply(this,[{},undefined]);
       return;
     }
-    cb.apply(this,[this.struct.read(this.storage,pkord*this.struct.sizeInBytes,fieldnames),pkord]);
+    this.struct.dropGlobalStruct();
+    this.struct.read(this.storage,pkord*this.struct.sizeInBytes,fieldnames);
+    cb.apply(this,[this.struct.global_struct,pkord]);
   }else{
     Storage.prototype.dataFor.apply(this,[name,value,cb,fieldnames]);
   }
