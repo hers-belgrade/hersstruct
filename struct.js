@@ -71,79 +71,79 @@ StructElement.prototype.write = function(value,buffer,offset){
 };
 
 function UInt8(){ }
-UInt8.prototype = new StructElement();
+UInt8.prototype = Object.create(StructElement.prototype, {constructor: {value:UInt8,enumerable:false, writable:false,configurable:false}});
 UInt8.prototype.constructor = UInt8;
 UInt8.prototype.bufferName = function(){return 'UInt8';}
 UInt8.prototype.read = function (buffer, offset) {return buffer.readUInt8(offset);}
 UInt8.prototype.sizeInBytes = function(){return 1;}
 function Int8(){ }
-Int8.prototype = new StructElement();
+Int8.prototype = Object.create(StructElement.prototype, {constructor: {value: Int8,enumerable:false, writable:false,configurable:false}});
 Int8.prototype.constructor = Int8;
 Int8.prototype.read = function (buffer, offset) {return buffer.readInt8(offset);}
 Int8.prototype.bufferName = function(){return 'Int8';}
 Int8.prototype.sizeInBytes = function(){return 1;}
 function UInt16LE(){ }
-UInt16LE.prototype = new StructElement();
+UInt16LE.prototype = Object.create(StructElement.prototype, {constructor: {value: UInt16LE,enumerable:false, writable:false,configurable:false}});
 UInt16LE.prototype.constructor = UInt16LE;
 UInt16LE.prototype.bufferName = function(){return 'UInt16LE';}
 UInt16LE.prototype.read = function (buffer, offset) {return buffer.readUInt16LE(offset);}
 UInt16LE.prototype.sizeInBytes = function(){return 2;}
 function UInt16BE(){ }
-UInt16BE.prototype = new StructElement();
+UInt16BE.prototype = Object.create(StructElement.prototype, {constructor: {value: UInt16BE,enumerable:false, writable:false,configurable:false}});
 UInt16BE.prototype.constructor = UInt16BE;
 UInt16BE.prototype.bufferName = function(){return 'UInt16BE';}
 UInt16BE.prototype.read = function (buffer, offset) {return buffer.readUInt16BE(offset);}
 UInt16BE.prototype.sizeInBytes = function(){return 2;}
 function Int16LE(){ }
-Int16LE.prototype = new StructElement();
+Int16LE.prototype = Object.create(StructElement.prototype, {constructor: {value:Int16LE,enumerable:false, writable:false,configurable:false}});
 Int16LE.prototype.constructor = UInt16LE;
 Int16LE.prototype.bufferName = function(){return 'Int16LE';}
 Int16LE.prototype.read = function (buffer, offset) {return buffer.readInt16LE(offset);}
 Int16LE.prototype.sizeInBytes = function(){return 2;}
 function Int16BE(){ }
-Int16BE.prototype = new StructElement();
+Int16BE.prototype = Object.create(StructElement.prototype, {constructor: {value:Int16BE,enumerable:false, writable:false,configurable:false}});
 Int16BE.prototype.constructor = UInt16BE;
 Int16BE.prototype.bufferName = function(){return 'Int16BE';}
 Int16BE.prototype.read = function (buffer, offset) {return buffer.readInt16BE(offset);}
 Int16BE.prototype.sizeInBytes = function(){return 2;}
 function UInt32LE(){ }
-UInt32LE.prototype = new StructElement();
+UInt32LE.prototype = Object.create(StructElement.prototype, {constructor: {value:UInt32LE,enumerable:false, writable:false,configurable:false}});
 UInt32LE.prototype.constructor = UInt32LE;
 UInt32LE.prototype.bufferName = function(){return 'UInt32LE';}
 UInt32LE.prototype.read = function (buffer, offset) {return buffer.readUInt32LE(offset);}
 UInt32LE.prototype.sizeInBytes = function(){return 4;}
 function UInt32BE(){ }
-UInt32BE.prototype = new StructElement();
+UInt32BE.prototype = Object.create(StructElement.prototype, {constructor: {value:UInt32BE,enumerable:false, writable:false,configurable:false}});
 UInt32BE.prototype.constructor = UInt32BE;
 UInt32BE.prototype.bufferName = function(){return 'UInt32BE';}
 UInt32BE.prototype.read = function (buffer, offset) {return buffer.readUInt32BE(offset);}
 UInt32BE.prototype.sizeInBytes = function(){return 4;}
 function Int32LE(){ }
-Int32LE.prototype = new StructElement();
+Int32LE.prototype = Object.create(StructElement.prototype, {constructor: {value:Int32LE,enumerable:false, writable:false,configurable:false}});
 Int32LE.prototype.constructor = Int32LE;
 Int32LE.prototype.bufferName = function(){return 'Int32LE';}
 Int32LE.prototype.read = function (buffer, offset) {return buffer.readInt32LE(offset);}
 Int32LE.prototype.sizeInBytes = function(){return 4;}
 function Int32BE(){ }
-Int32BE.prototype = new StructElement();
+Int32BE.prototype = Object.create(StructElement.prototype, {constructor: {value:Int32BE,enumerable:false, writable:false,configurable:false}});
 Int32BE.prototype.constructor = Int32BE;
 Int32BE.prototype.bufferName = function(){return 'Int32BE';}
 Int32BE.prototype.read = function (buffer, offset) {return buffer.readInt32BE(offset);}
 Int32BE.prototype.sizeInBytes = function(){return 4;}
 function FloatLE(){ }
-FloatLE.prototype = new StructElement();
+FloatLE.prototype = Object.create(StructElement.prototype, {constructor: {value:FloatLE,enumerable:false, writable:false,configurable:false}});
 FloatLE.prototype.constructor = FloatLE;
 FloatLE.prototype.bufferName = function(){return 'FloatLE';}
 FloatLE.prototype.read = function (buffer, offset) {return buffer.readFloatLE(offset);}
 FloatLE.prototype.sizeInBytes = function(){return 4;}
 function FloatBE(){ }
-FloatBE.prototype = new StructElement();
+FloatBE.prototype = Object.create(StructElement.prototype, {constructor: {value:FloatBE,enumerable:false, writable:false,configurable:false}});
 FloatBE.prototype.constructor = FloatBE;
 FloatBE.prototype.bufferName = function(){return 'FloatBE';}
 FloatBE.prototype.read = function (buffer, offset) {return buffer.readFloatBE(offset);}
 FloatBE.prototype.sizeInBytes = function(){return 4;}
 function UInt64LE(){ }
-UInt64LE.prototype = new StructElement();
+UInt64LE.prototype = Object.create(StructElement.prototype, {constructor: {value:UInt64LE,enumerable:false, writable:false,configurable:false}});
 UInt64LE.prototype.constructor = UInt64LE;
 UInt64LE.prototype.sizeInBytes = function(){return 8;}
 UInt64LE.prototype.write = function(value,buffer,offset){
@@ -157,7 +157,7 @@ UInt64LE.prototype.read = function(buffer,offset){
 };
 
 function CRC(){ }
-CRC.prototype = new UInt16LE();
+CRC.prototype = Object.create(UInt16LE.prototype, {constructor: {value:CRC, writable:false, enumerable: false, configurable:false}});
 CRC.prototype.constructor = CRC;
 CRC.prototype.write = function(value,buffer,offset,chunklength){
   //ignore value
@@ -432,18 +432,18 @@ File.prototype.traverse = function(initcb,cb,fieldnames, chunks){
   if(fsz%sz){
     throw (this.path+' has filesize '+fsz+' that is not a multiple of '+sz+' bytes');
   }
-  if(typeof initcb === 'function'){
-    initcb.apply(this,[fsz,sz,Math.floor(fsz/sz)]);
-  }
-
-	//Open file for reading in synchronous mode. Instructs the operating system to bypass the local file system cache
-	//TODO: introduce more chunk checks on this: check overlapping, check range data and so on ....
-  var f = fs.openSync(this.path,'rs');
 	if (!chunks) {
 		chunks = [{start: 0, end:Math.floor(fsz/sz)}];
 	}else{
 		chunks = CM.merge(chunks);
 	}
+  if(typeof initcb === 'function'){
+    initcb.apply(this,[fsz,sz,CM.len(chunks)]);
+  }
+
+	//Open file for reading in synchronous mode. Instructs the operating system to bypass the local file system cache
+	//TODO: introduce more chunk checks on this: check overlapping, check range data and so on ....
+  var f = fs.openSync(this.path,'rs');
 	var bufferSize = 0;
 	for (var i in chunks) { bufferSize += (CM.chunk_length(chunks[i])*sz); }
 	var buff = new Buffer(bufferSize);
@@ -498,7 +498,6 @@ Storage.prototype.traverse = function(cb,fieldnames, test_cb){
   var dsz = this.storage.length;
   var pos = 0;
   var cnt = 0;
-
 	var do_test = ('function' === typeof(test_cb));
 
   this.struct.dropGlobalStruct();
@@ -547,7 +546,14 @@ function PKStorage(mapstring,count,pkname){
   this.pkname = pkname;
   this.pkmap = {};
 }
-PKStorage.prototype = new Storage();
+PKStorage.prototype = Object.create(Storage.prototype, {
+  constructor: {
+    value: PKStorage
+    ,enumerable:false
+    ,writable: false
+    ,configurable: false
+  }
+});
 PKStorage.prototype.constructor = PKStorage;
 PKStorage.prototype.put = function(data,recordinal){
   var pkval = data[this.pkname];
